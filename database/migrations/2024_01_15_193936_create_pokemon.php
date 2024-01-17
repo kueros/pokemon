@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pokemon', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
-            $table->integer('HP')->nullable();
+            $table->integer('hp');
             $table->string('primera_edicion', 2);
             $table->string('expansion', 100);
             $table->string('tipo', 100);

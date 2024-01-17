@@ -6,12 +6,28 @@ use Illuminate\Http\Request;
 use App\Models\Pokemon;
 use App\Http\Requests\StorePokemonsRequest;
 use Illuminate\Support\Facades\Storage;
+    /**
+    * @OA\Info(title="API Cartas de Pokemon", version="1.0")
+    *
+    * @OA\Server(url="http://localhost:8000/api/")
+    */
 
 class PokemonController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
+    * @OA\Get(
+    *     path="/pokemons",
+    *     summary="Mostrar todas las cartas de Pokemon",
+    *     @OA\Response(
+    *         response=200,
+    *         description="Mostrar todas las cartas de Pokemon."
+    *     ),
+    *     @OA\Response(
+    *         response="default",
+    *         description="Ha ocurrido un error."
+    *     )
+    * )
+    */
     public function index()
     {
         $pokemones = Pokemon::all();
@@ -21,9 +37,32 @@ class PokemonController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+/**
+ * @OA\Post(
+ *     path="/api/pokemones",
+ *     summary="Crear una nueva carta Pokémon",
+ *     description="Crea una nueva carta Pokémon con los detalles proporcionados.",
+ *     operationId="createPokemon",
+ *     @OA\RequestBody(
+ *         required=true,
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Carta Pokémon creada exitosamente",
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Error de validación",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+ *             @OA\Property(property="errors", type="object", example={"nombre": {"El campo nombre es obligatorio."}})
+ *         )
+ *     )
+ * )
+ */
+
     public function store(StorePokemonsRequest $request)
     {
 
@@ -53,10 +92,29 @@ class PokemonController extends Controller
         ], 200);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
+/**
+ * @OA\Get(
+ *     path="/pokemones/{id}",
+ *     summary="Obtener detalles de un Pokémon",
+ *     description="Devuelve los detalles de un Pokémon específico.",
+ *     operationId="getPokemonById",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="ID del Pokémon",
+ *         required=true,
+ *         @OA\Schema(type="integer", format="int64")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Detalles del Pokémon"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Pokémon no encontrado",
+ *     )
+ * )
+ */
     public function show(string $id)
     {
         try {
@@ -73,14 +131,42 @@ class PokemonController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+/**
+ * @OA\Post(
+ *     path="/pokemones/{id}",
+ *     summary="Actualizar una carta",
+ *     description="Mediante el ID se busca y cargan los datos pasados en el body en formato json.",
+ *     operationId="getPokemonById",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="ID del Pokémon",
+ *         required=true,
+ *         @OA\Schema(type="integer", format="int64")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Detalles del Pokémon"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Pokémon no encontrado",
+ *     )
+ * )
+ */
     public function update(Request $request,$id)
     {
         $data = $request->validate([
             'nombre' => 'string',
-            'hp' => 'numeric',
+            'hp' => [
+                'required',
+                'numeric',
+                function ($attribute, $value, $fail) {
+                    if ($value % 10 !== 0) {
+                        $fail($attribute.' debe ser un múltiplo de 10.');
+                    }
+                },
+            ],
             'primera_edicion' => 'string',
             'expansion' => 'string',
             'tipo' => 'string',
@@ -90,6 +176,8 @@ class PokemonController extends Controller
         ]);
 
         $pokemon=Pokemon::find($id);
+
+
 
         if ($request->hasFile('imagen')) {
             // Elimina la imagen anterior si existe
@@ -101,7 +189,7 @@ class PokemonController extends Controller
             $data['imagen'] = $imagenPath;
         }
 
-        $pokemon->update($request->all());
+        $pokemon->update($data);
         return response()->json([
             'status' => true,
             'message' => 'Pokemon actualizado exitosamente!',
@@ -110,8 +198,20 @@ class PokemonController extends Controller
 
     }
     /**
-     * Remove the specified resource from storage.
-     */
+    * @OA\Del(
+    *     path="/pokemons/{id}",
+    *     summary="Borrar una carta en particular",
+    *     @OA\Response(
+    *         response=200,
+    *         description="Borrar una carta en particular mediante un ID pasado en la URL
+    *                      Se utiliza método DEL, se envía en la url el ID de la carta deseada y la API devuelve mensaje como el siguiente: 'Pokemon borrado exitosamente!'"
+    *     ),
+    *     @OA\Response(
+    *         response="default",
+    *         description="Ha ocurrido un error."
+    *     )
+    * )
+    */
     public function destroy(string $id)
     {
         $pokemon = Pokemon::destroy($id);

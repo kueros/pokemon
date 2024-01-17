@@ -11,7 +11,7 @@ class Pokemon extends Model
 
     protected $fillable = [
         'nombre',
-        'HP',
+        'hp',
         'primera_edicion',
         'expansion',
         'tipo',

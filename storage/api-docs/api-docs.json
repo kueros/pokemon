@@ -1,0 +1,118 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Cartas de Pokemon",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api/"
+        }
+    ],
+    "paths": {
+        "/pokemons": {
+            "get": {
+                "summary": "Mostrar todas las cartas de Pokemon",
+                "operationId": "b48e539ca9376b179929614f69c5390e",
+                "responses": {
+                    "200": {
+                        "description": "Mostrar todas las cartas de Pokemon."
+                    },
+                    "default": {
+                        "description": "Ha ocurrido un error."
+                    }
+                }
+            }
+        },
+        "/api/pokemones": {
+            "post": {
+                "summary": "Crear una nueva carta Pokémon",
+                "description": "Crea una nueva carta Pokémon con los detalles proporcionados.",
+                "operationId": "createPokemon",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Carta Pokémon creada exitosamente"
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "nombre": [
+                                                    "El campo nombre es obligatorio."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pokemones/{id}": {
+            "get": {
+                "summary": "Obtener detalles de un Pokémon",
+                "description": "Devuelve los detalles de un Pokémon específico.",
+                "operationId": "getPokemonById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del Pokémon",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalles del Pokémon"
+                    },
+                    "404": {
+                        "description": "Pokémon no encontrado"
+                    }
+                }
+            }
+        },
+        "/pokemons/NRO_ID_POKEMON": {
+            "post": {
+                "summary": "Actualizar una carta",
+                "operationId": "13272bd62067aed0c333f5af024cfa82",
+                "responses": {
+                    "200": {
+                        "description": "Actualizar una carta según el ID pasado en la url.\n    *                      Se apunta a la misma url y, con método POST, se envían en el body los campos según el siguiente esquema:\n    *               'nombre' => 'string',\n    *               'hp' => 'numeric',\n    *               'primera_edicion' => 'string',\n    *               'expansion' => 'string',\n    *               'tipo' => 'string',\n    *               'rareza' => 'string',\n    *               'precio' => 'numeric',\n    *               'imagen' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',\n    *\n    *               Si se usa Postman para probar la API se deben enviar los datos en el body utilizando el formato *form-data* para poder\n    *               enviar la imagen.\n    *               incluyendo en los headers *Accept Application/json*\n    *               Si no se va a enviar la imagen, se puede utilizar el formato RAW / JSON y mandar directamente un json sin necesidad de cargar\n    *               cada uno de los datos en un form-data."
+                    },
+                    "default": {
+                        "description": "Ha ocurrido un error."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "200": {
+                "description": "Borrar una carta en particular mediante un ID pasado en la URL\n    *                      Se utiliza método DEL, se envía en la url el ID de la carta deseada y la API devuelve mensaje como el siguiente: 'Pokemon borrado exitosamente!'"
+            },
+            "default": {
+                "description": "Ha ocurrido un error."
+            }
+        }
+    }
+}
